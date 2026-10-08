@@ -1,0 +1,418 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC 07 - Management Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-12 antialiased">
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <!-- Left Side: Header Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <h1 class="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    BC 07 Dashboard
+                </h1>
+            </div>
+
+            <!-- Right Side: Stacked Badge -->
+            <div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl px-3.5 py-1.5 text-right flex flex-col justify-center">
+                <span class="text-xs font-extrabold tracking-wide uppercase text-indigo-300">10 Members</span>
+                <span class="text-[11px] font-bold text-indigo-400/80">₹5,000/Mo</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl relative overflow-hidden group">
+                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Total Monthly Pool</p>
+                <p class="text-3xl font-extrabold text-indigo-400 mt-2">₹50,000</p>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl relative overflow-hidden group">
+                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Paid Status</p>
+                <p id="paidCount" class="text-3xl font-extrabold text-emerald-400 mt-2">0 / 10</p>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl relative overflow-hidden group">
+                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Pending Draw</p>
+                <p id="pendingDrawCount" class="text-3xl font-extrabold text-amber-400 mt-2">10</p>
+            </div>
+        </div>
+
+        <!-- Lucky Draw Section -->
+        <div class="bg-slate-900/90 border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center relative overflow-hidden">
+            <h2 class="text-lg font-bold text-slate-200 uppercase tracking-wide">Monthly Digital Chit Draw</h2>
+            <p class="text-slate-400 text-xs mt-1">Click the button below to pick this month's lucky winner</p>
+            
+            <div id="winnerText" class="text-3xl md:text-4xl font-black bg-gradient-to-r from-amber-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent my-6 h-12 flex items-center justify-center">
+                ---
+            </div>
+
+            <button onclick="pickWinner()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-500/25 active:scale-95 transition duration-200">
+                Pick Winner 🎲
+            </button>
+        </div>
+
+        <!-- 10 MEMBERS TRIGGER BOX -->
+        <div onclick="openMembersModal()" class="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-5 md:p-6 rounded-2xl border border-indigo-500/30 hover:border-indigo-500/80 cursor-pointer shadow-xl transition-all duration-300 group flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 p-3.5 rounded-2xl text-2xl group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition duration-300">
+                    👥
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-100 group-hover:text-indigo-400 transition">10 Members</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Click here to view members list</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-indigo-400 font-semibold text-sm group-hover:translate-x-1 transition duration-300">
+                <span>View Directory</span>
+                <span>&rarr;</span>
+            </div>
+        </div>
+
+        <!-- Winner History Log -->
+        <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-base font-bold text-slate-200 mb-4 flex items-center space-x-2">
+                <span>🏆</span>
+                <span>Draw History</span>
+            </h2>
+            <ul id="historyList" class="divide-y divide-slate-800/60">
+                <li class="py-3 text-slate-500 text-xs">No draw conducted yet.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- POPUP MODAL (DIRECTORY, LOGIN & MONTHS DETAILS) -->
+    <div id="membersModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 md:p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            
+            <!-- Modal Header -->
+            <div class="bg-slate-900 border-b border-slate-800 p-5 flex justify-between items-center">
+                <div>
+                    <h3 id="modalTitle" class="text-lg font-bold text-slate-100">10 Members Directory</h3>
+                    <p id="modalSubTitle" class="text-xs text-slate-400">Click on any member to view details</p>
+                </div>
+                <button onclick="closeMembersModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 overflow-y-auto flex-1 bg-slate-950/50">
+                
+                <!-- VIEW 1: MEMBERS LIST DIRECTORY -->
+                <div id="directorySection" class="space-y-2.5">
+                    <!-- Members Card Rendered Here -->
+                </div>
+
+                <!-- VIEW 2: LOGIN FORM SECTION -->
+                <div id="loginFormSection" class="hidden space-y-4 max-w-sm mx-auto py-4">
+                    <div class="text-center mb-4">
+                        <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Member Verification</span>
+                        <h4 id="selectedMemberTitle" class="text-lg font-extrabold text-slate-100 mt-1">Logging in to Member</h4>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">User ID</label>
+                        <input type="text" id="inputUserId" placeholder="e.g. 8888888888" 
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Password</label>
+                        <input type="password" id="inputUserPass" placeholder="Enter password" 
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <p id="loginError" class="text-rose-400 text-xs hidden">Invalid User ID or Password!</p>
+                    
+                    <div class="flex space-x-2 pt-2">
+                        <button onclick="backToDirectory()" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">
+                            Back
+                        </button>
+                        <button onclick="performLogin()" class="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-indigo-600/30 transition text-xs">
+                            Login & Access
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 text-center">ID: 8888888888 | Password: Rohan</p>
+                </div>
+
+                <!-- VIEW 3: LOGGED IN MEMBER PROFILE -->
+                <div id="profileSection" class="hidden space-y-4">
+                    <div class="bg-indigo-950/50 border border-indigo-500/30 p-4 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <span class="text-[11px] text-indigo-400 font-semibold uppercase">Verified Member</span>
+                            <h4 id="profileName" class="text-lg font-extrabold text-slate-100">-</h4>
+                            <p id="profileIdDisplay" class="text-xs text-slate-400">-</p>
+                        </div>
+                        <button onclick="logoutMember()" class="bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 px-3 py-1.5 rounded-xl text-xs font-semibold">
+                            Back / Exit
+                        </button>
+                    </div>
+
+                    <!-- Personal Stats (Paid & Draw) -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[11px] text-slate-500 font-semibold uppercase">Payment Status</span>
+                            <p id="profilePayment" class="text-sm font-bold mt-1">-</p>
+                        </div>
+                        <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[11px] text-slate-500 font-semibold uppercase">Draw Eligibility</span>
+                            <p id="profileDraw" class="text-sm font-bold mt-1">-</p>
+                        </div>
+                    </div>
+
+                    <!-- YELLOW MONTHS CARD (10 Months Status Box) -->
+                    <div onclick="toggleMonthsList()" class="bg-amber-500/10 border border-amber-500/40 p-4 rounded-2xl cursor-pointer hover:bg-amber-500/20 transition group flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-amber-500/20 text-amber-400 p-2.5 rounded-xl text-xl">
+                                📅
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-bold text-amber-300 group-hover:text-amber-200">10 Months Payment Summary</h5>
+                                <p id="monthsSummaryText" class="text-[11px] text-amber-400/80">Click to view monthly status breakdown</p>
+                            </div>
+                        </div>
+                        <span id="monthsArrow" class="text-amber-400 font-bold text-lg group-hover:translate-y-0.5 transition">&darr;</span>
+                    </div>
+
+                    <!-- 10 MONTHS DETAILED LIST (Expandable) -->
+                    <div id="monthsContainer" class="hidden bg-slate-900 border border-amber-500/30 rounded-2xl p-4 space-y-2">
+                        <h6 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">10 Months Payment Ledger</h6>
+                        <div id="monthsList" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <!-- JS Dynamically Loads Month Names with 5000 and Unpaid -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 bg-slate-900 border-t border-slate-800 text-right">
+                <button onclick="closeMembersModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-5 py-2 rounded-xl text-xs">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // 10 Months Names (Starting from September)
+        const monthNames = [
+            "September", "October", "November", "December", 
+            "January", "February", "March", "April", "May", "June"
+        ];
+
+        // 10 Members Database (ID: "8888888888", Password: "Rohan")
+        const members = [
+            { id: 1, userId: "8888888888", pass: "Rohan", name: "Member 1", paid: false, won: false },
+            { id: 2, userId: "8888888888", pass: "Rohan", name: "Member 2", paid: false, won: false },
+            { id: 3, userId: "8888888888", pass: "Rohan", name: "Member 3", paid: false, won: false },
+            { id: 4, userId: "8888888888", pass: "Rohan", name: "Member 4", paid: false, won: false },
+            { id: 5, userId: "8888888888", pass: "Rohan", name: "Member 5", paid: false, won: false },
+            { id: 6, userId: "8888888888", pass: "Rohan", name: "Member 6", paid: false, won: false },
+            { id: 7, userId: "8888888888", pass: "Rohan", name: "Member 7", paid: false, won: false },
+            { id: 8, userId: "8888888888", pass: "Rohan", name: "Member 8", paid: false, won: false },
+            { id: 9, userId: "8888888888", pass: "Rohan", name: "Member 9", paid: false, won: false },
+            { id: 10, userId: "8888888888", pass: "Rohan", name: "Member 10", paid: false, won: false }
+        ];
+
+        let selectedMember = null;
+        let loggedInUser = null;
+        let history = [];
+
+        function openMembersModal() {
+            document.getElementById('membersModal').classList.remove('hidden');
+            backToDirectory();
+        }
+
+        function closeMembersModal() {
+            document.getElementById('membersModal').classList.add('hidden');
+        }
+
+        function backToDirectory() {
+            document.getElementById('modalTitle').innerText = "10 Members Directory";
+            document.getElementById('modalSubTitle').innerText = "Click on any member to view details";
+            
+            document.getElementById('directorySection').classList.remove('hidden');
+            document.getElementById('loginFormSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+            
+            renderDirectoryList();
+        }
+
+        function renderDirectoryList() {
+            const container = document.getElementById('directorySection');
+            container.innerHTML = '';
+
+            members.forEach((m) => {
+                const card = document.createElement('div');
+                card.onclick = () => selectMemberToLogin(m);
+                card.className = "bg-slate-900 border border-slate-800/80 hover:border-indigo-500/80 p-3.5 rounded-xl flex justify-between items-center cursor-pointer transition group";
+                
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center text-xs transition">
+                            #${m.id}
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-slate-200 text-xs group-hover:text-indigo-400 transition">${m.name}</h4>
+                            <p class="text-[10px] text-slate-500">Click to enter password</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-indigo-400 font-semibold group-hover:translate-x-1 transition">
+                            Login &rarr;
+                        </span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectMemberToLogin(member) {
+            selectedMember = member;
+            document.getElementById('modalTitle').innerText = "Member Authentication";
+            document.getElementById('modalSubTitle').innerText = "Security verification required";
+            document.getElementById('selectedMemberTitle').innerText = `Accessing: ${member.name}`;
+            
+            document.getElementById('inputUserId').value = '';
+            document.getElementById('inputUserPass').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+
+            document.getElementById('directorySection').classList.add('hidden');
+            document.getElementById('loginFormSection').classList.remove('hidden');
+            document.getElementById('profileSection').classList.add('hidden');
+        }
+
+        function performLogin() {
+            const id = document.getElementById('inputUserId').value.trim();
+            const pass = document.getElementById('inputUserPass').value.trim();
+
+            if (id === selectedMember.userId && pass === selectedMember.pass) {
+                loggedInUser = selectedMember;
+                showProfile();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function showProfile() {
+            document.getElementById('modalTitle').innerText = "Member Account";
+            document.getElementById('modalSubTitle').innerText = "Personal status details";
+
+            document.getElementById('directorySection').classList.add('hidden');
+            document.getElementById('loginFormSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.remove('hidden');
+
+            document.getElementById('profileName').innerText = loggedInUser.name;
+            document.getElementById('profileIdDisplay').innerText = `Account ID: #${loggedInUser.id}`;
+            document.getElementById('profilePayment').innerText = loggedInUser.paid ? "Paid ✓" : "Pending ✗";
+            document.getElementById('profilePayment').className = `text-sm font-bold mt-1 ${loggedInUser.paid ? 'text-emerald-400' : 'text-rose-400'}`;
+            document.getElementById('profileDraw').innerText = loggedInUser.won ? "Winner 🏆" : "Eligible";
+            document.getElementById('profileDraw').className = `text-sm font-bold mt-1 ${loggedInUser.won ? 'text-purple-400' : 'text-indigo-400'}`;
+
+            document.getElementById('monthsSummaryText').innerText = `Click to view 10 months status breakdown`;
+            document.getElementById('monthsContainer').classList.add('hidden');
+            renderMonthsList();
+        }
+
+        function toggleMonthsList() {
+            const container = document.getElementById('monthsContainer');
+            const arrow = document.getElementById('monthsArrow');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                arrow.innerHTML = '&uarr;';
+            } else {
+                container.classList.add('hidden');
+                arrow.innerHTML = '&darr;';
+            }
+        }
+
+        function renderMonthsList() {
+            const monthsList = document.getElementById('monthsList');
+            monthsList.innerHTML = '';
+
+            monthNames.forEach((mName) => {
+                const monthCard = document.createElement('div');
+                monthCard.className = 'p-2.5 rounded-xl border bg-slate-950 border-slate-800 flex justify-between items-center text-xs';
+                
+                monthCard.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-slate-200">${mName}</span>
+                        <span class="text-indigo-400 font-semibold text-[11px]">5000</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                        Unpaid ✗
+                    </span>
+                `;
+                monthsList.appendChild(monthCard);
+            });
+        }
+
+        function logoutMember() {
+            loggedInUser = null;
+            selectedMember = null;
+            backToDirectory();
+        }
+
+        function updateCounts() {
+            let paidCount = members.filter(m => m.paid).length;
+            let pendingCount = members.filter(m => !m.won).length;
+
+            document.getElementById('paidCount').innerText = `${paidCount} / 10`;
+            document.getElementById('pendingDrawCount').innerText = pendingCount;
+        }
+
+        function pickWinner() {
+            const eligibleMembers = members.filter(m => !m.won);
+
+            if (eligibleMembers.length === 0) {
+                alert("All 10 members have won the draw!");
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * eligibleMembers.length);
+            const winner = eligibleMembers[randomIndex];
+
+            winner.won = true;
+            document.getElementById('winnerText').innerText = `${winner.name} 🥳`;
+
+            history.push(`Month ${11 - eligibleMembers.length}: ${winner.name}`);
+            renderHistory();
+            updateCounts();
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'py-2.5 font-medium text-slate-300 text-xs flex items-center space-x-2';
+                li.innerHTML = `<span class="text-indigo-400">•</span> <span>${item}</span>`;
+                historyList.appendChild(li);
+            });
+        }
+
+        updateCounts();
+    </script>
+</body>
+</html>
